@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, status, HTTPException
-from .. import schemas, database, models
+from fastapi import APIRouter, Depends, status
+from .. import schemas, database
 from sqlalchemy.orm import Session
 from typing import List
 from .. repository import blog
@@ -19,11 +19,7 @@ def create(request: schemas.Blog, db: Session = Depends(database.get_db)):
 
 @router.get('/{id}', status_code=200, response_model=schemas.ShowBlog)
 def show(id, db: Session = Depends(database.get_db)):
-    blog = db.query(models.Blog).filter(models.Blog.id == id).first()
-    if not blog:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Blog with {id} is not available")
-    return blog
+    return blog.show(id, db)
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def destroy(id, db: Session = Depends(database.get_db)):
@@ -32,10 +28,4 @@ def destroy(id, db: Session = Depends(database.get_db)):
 
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
 def update(id, request: schemas.Blog, db: Session = Depends(database.get_db)):
-    blog = db.query(models.Blog).filter(models.Blog.id == id)
-    if not blog.first():
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"Blog with id {id} not found")
-
-    blog.update(request.model_dump())
-    db.commit()
-    return 'Updated successfully'
+    return blog.update(id, request, db)

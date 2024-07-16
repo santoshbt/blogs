@@ -24,3 +24,19 @@ def destroy(id: int, db: Session):
     blog.delete(synchronize_session=False)
     db.commit()
     return 'done'
+
+def update(id:int, request: schemas.Blog, db: Session = Depends(database.get_db)):
+    blog = db.query(models.Blog).filter(models.Blog.id == id)
+    if not blog.first():
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"Blog with id {id} not found")
+
+    blog.update(request.model_dump())
+    db.commit()
+    return 'Updated successfully'
+
+def show(id:int, db: Session = Depends(database.get_db)):
+    blog = db.query(models.Blog).filter(models.Blog.id == id).first()
+    if not blog:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Blog with {id} is not available")
+    return blog
