@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 class BlogBase(BaseModel):
@@ -40,5 +40,4 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: str | None = None
-    scopes: list[str] = []
+    email: Optional[str] = None
